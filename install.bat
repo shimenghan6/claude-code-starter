@@ -106,27 +106,45 @@ if "%DEEPSEEK_KEY%"=="" (
 :: ── Step 4: Install skills ──
 echo.
 echo [4/6] 安装技能包...
+echo.
+echo  可选技能:
+echo    1. 浏览器操控 - 说"搜一下xxx"自动操控浏览器
+echo    2. GitHub 调研 - 说"查一下xxx项目"自动对比分析
+echo    3. 声音提示   - 任务完成叮咚提醒
+echo    4. 全部安装
+echo    回车跳过
+echo.
+set /p SKILL_CHOICE="  请选择 (1/2/3/4，回车跳过): "
 
 set SKILLS_DIR=%USERPROFILE%\.claude\skills
 
-:: browser-control
+if "%SKILL_CHOICE%"=="1" goto :install_browser
+if "%SKILL_CHOICE%"=="2" goto :install_research
+if "%SKILL_CHOICE%"=="3" goto :install_sound
+if "%SKILL_CHOICE%"=="4" goto :install_browser
+
+echo  跳过技能安装（之后可随时安装: https://github.com/shimenghan6）
+goto :step5
+
+:install_browser
 if not exist "%SKILLS_DIR%\browser-control" mkdir "%SKILLS_DIR%\browser-control"
 curl -fsSL "https://raw.githubusercontent.com/shimenghan6/browser-control/master/SKILL.md" -o "%SKILLS_DIR%\browser-control\SKILL.md" 2>nul
-if %errorlevel% equ 0 (echo  [√] browser-control) else (echo  [-] browser-control 下载失败，跳过)
+if %errorlevel% equ 0 (echo  [√] browser-control - 浏览器操控) else (echo  [-] browser-control 下载失败)
+if not "%SKILL_CHOICE%"=="4" goto :step5
 
-:: github-research
+:install_research
 if not exist "%SKILLS_DIR%\github-research" mkdir "%SKILLS_DIR%\github-research"
 curl -fsSL "https://raw.githubusercontent.com/shimenghan6/github-research/master/SKILL.md" -o "%SKILLS_DIR%\github-research\SKILL.md" 2>nul
-if %errorlevel% equ 0 (echo  [√] github-research) else (echo  [-] github-research 下载失败，跳过)
+if %errorlevel% equ 0 (echo  [√] github-research - GitHub调研) else (echo  [-] github-research 下载失败)
+if not "%SKILL_CHOICE%"=="4" goto :step5
 
-:: claude-code-sound-notifier
+:install_sound
 if not exist "%SKILLS_DIR%\claude-code-sound-notifier" mkdir "%SKILLS_DIR%\claude-code-sound-notifier"
 curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-sound-notifier/master/install.ps1" -o "%SKILLS_DIR%\claude-code-sound-notifier\install.ps1" 2>nul
-if %errorlevel% equ 0 (
-    echo  [√] claude-code-sound-notifier
-) else (
-    echo  [-] claude-code-sound-notifier 下载失败，跳过
-)
+if %errorlevel% equ 0 (echo  [√] claude-code-sound-notifier - 声音提示) else (echo  [-] 声音提示 下载失败)
+if not "%SKILL_CHOICE%"=="4" goto :step5
+
+:step5
 
 :: ── Step 5: WeChat (optional) ──
 echo.

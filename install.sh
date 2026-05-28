@@ -83,17 +83,35 @@ fi
 
 # Step 4: Install skills
 echo "[4/6] 安装技能包..."
+echo ""
+echo " 可选技能:"
+echo "   1. 浏览器操控 - 说'搜一下xxx'自动操控浏览器"
+echo "   2. GitHub 调研 - 说'查一下xxx项目'自动对比分析"
+echo "   3. 声音提示   - 任务完成叮咚提醒"
+echo "   4. 全部安装"
+echo "   回车跳过"
+echo ""
+read -p " 请选择 (1/2/3/4，回车跳过): " SKILL_CHOICE
+
 SKILLS_DIR="$HOME/.claude/skills"
 mkdir -p "$SKILLS_DIR"
 
-for skill in browser-control github-research; do
-    mkdir -p "$SKILLS_DIR/$skill"
-    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/$skill/master/SKILL.md" -o "$SKILLS_DIR/$skill/SKILL.md" 2>/dev/null && echo " [√] $skill" || echo " [-] $skill 下载失败，跳过"
-done
+if [ "$SKILL_CHOICE" = "1" ] || [ "$SKILL_CHOICE" = "4" ]; then
+    mkdir -p "$SKILLS_DIR/browser-control"
+    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/browser-control/master/SKILL.md" -o "$SKILLS_DIR/browser-control/SKILL.md" 2>/dev/null && echo " [√] browser-control - 浏览器操控" || echo " [-] browser-control 下载失败"
+fi
 
-# sound-notifier (special install)
-mkdir -p "$SKILLS_DIR/claude-code-sound-notifier"
-curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-sound-notifier/master/install.sh" -o "$SKILLS_DIR/claude-code-sound-notifier/install.sh" 2>/dev/null && echo " [√] claude-code-sound-notifier" || echo " [-] claude-code-sound-notifier 下载失败，跳过"
+if [ "$SKILL_CHOICE" = "2" ] || [ "$SKILL_CHOICE" = "4" ]; then
+    mkdir -p "$SKILLS_DIR/github-research"
+    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/github-research/master/SKILL.md" -o "$SKILLS_DIR/github-research/SKILL.md" 2>/dev/null && echo " [√] github-research - GitHub调研" || echo " [-] github-research 下载失败"
+fi
+
+if [ "$SKILL_CHOICE" = "3" ] || [ "$SKILL_CHOICE" = "4" ]; then
+    mkdir -p "$SKILLS_DIR/claude-code-sound-notifier"
+    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-sound-notifier/master/install.sh" -o "$SKILLS_DIR/claude-code-sound-notifier/install.sh" 2>/dev/null && echo " [√] claude-code-sound-notifier - 声音提示" || echo " [-] 声音提示 下载失败"
+fi
+
+[ -z "$SKILL_CHOICE" ] && echo " 跳过技能安装（之后可随时安装: https://github.com/shimenghan6）"
 
 # Step 5: WeChat (optional)
 echo "[5/6] 微信接入..."
