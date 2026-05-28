@@ -1,14 +1,21 @@
 # Claude Code Starter
 
-> 一行命令，装好 Claude Code + DeepSeek V4 + 常用技能栈。支持微信远程操控、浏览器自动化、GitHub 项目调研。
+> 3 分钟，零门槛，拥有一个能替你写代码、搜网页、改文件、微信遥控的 AI 编程助手。
 
 ```
-install.bat → 3 分钟 → 终端输入 claude → AI 编程助手就绪
-              ├─ 模型: DeepSeek V4 Pro (1M context window)
-              ├─ 协议: Anthropic Messages API 兼容
-              ├─ 工具: Bash / Read / Write / Edit / WebSearch / WebFetch
-              └─ 扩展: 微信桥接 / 浏览器操控 / OCR / Whisper / FFmpeg
+现在：双击 install.bat → 3 分钟后：终端输入 claude
+                                     "帮我写一个爬虫"──开始写代码
+                                     "搜一下 React 19"──浏览器自动搜索
+                                     "我微信发的图里有什么"──OCR 识别回复
 ```
+
+**模型用 DeepSeek V4（1M 上下文，每月几块钱），协议兼容 Anthropic Messages API。技能栈可选：浏览器操控 + GitHub 调研 + 微信桥接。**
+
+| 传统方式 | Claude Code Starter |
+|---------|-------------------|
+| 手动装 CLI，找 API 文档，手写 JSON 配置 | 双击，选数字，粘贴 Key |
+| 30 分钟起步 | 3 分钟 |
+| 容易配错模型、权限、路径 | 全自动，零出错 |
 
 ---
 
