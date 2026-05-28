@@ -25,7 +25,27 @@ echo " [√] Claude Code 已安装"
 
 # Step 2: Configure DeepSeek
 echo "[3/6] 配置 DeepSeek 模型..."
-echo " 需要 DeepSeek API Key。没有的话去 https://platform.deepseek.com 注册。"
+echo " 需要 DeepSeek API Key（注册送额度，每次调用几分钱）。"
+read -p " 已经有 API Key 了？(y/n，默认 n): " HAS_KEY
+
+if [ "$HAS_KEY" != "y" ]; then
+    echo " 正在打开 DeepSeek 注册页面..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "https://platform.deepseek.com"
+    else
+        xdg-open "https://platform.deepseek.com" 2>/dev/null || echo " 请手动打开: https://platform.deepseek.com"
+    fi
+    echo ""
+    echo " ┌─────────────────────────────────────────┐"
+    echo " │  注册步骤:                              │"
+    echo " │  1. 浏览器中注册/登录 DeepSeek         │"
+    echo " │  2. 点左侧 "API Keys"                  │"
+    echo " │  3. 点 "创建 API Key"                  │"
+    echo " │  4. 复制 key (sk-开头)                 │"
+    echo " │  5. 回到这里粘贴                       │"
+    echo " └─────────────────────────────────────────┘"
+    echo ""
+fi
 read -p " 请粘贴你的 DeepSeek API Key (sk-开头，回车跳过): " DEEPSEEK_KEY
 
 SETTINGS_DIR="$HOME/.claude"

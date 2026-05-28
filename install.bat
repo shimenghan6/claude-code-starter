@@ -39,11 +39,29 @@ echo  [√] Claude Code 已安装
 echo.
 echo [3/6] 配置 DeepSeek 模型...
 echo.
-echo  需要 DeepSeek API Key。
-echo  没有的话去 https://platform.deepseek.com 注册，点左侧"API Keys"创建。
-echo  注册送额度，每次调用几分钱。
+echo  需要 DeepSeek API Key（注册送额度，每次调用几分钱）。
 echo.
-set /p DEEPSEEK_KEY="  请粘贴你的 DeepSeek API Key (sk-开头): "
+set /p HAS_KEY="  已经有 API Key 了？(y/n，默认 n): "
+if /i "%HAS_KEY%"=="y" goto :paste_key
+
+:: 没有 Key → 自动打开注册页
+echo.
+echo  正在打开 DeepSeek 注册页面...
+echo  注册后在左侧 "API Keys" 创建 Key，复制粘贴回来。
+start "" "https://platform.deepseek.com"
+echo.
+echo  ┌─────────────────────────────────────────┐
+echo  │  注册步骤:                              │
+echo  │  1. 浏览器中注册/登录 DeepSeek         │
+echo  │  2. 点左侧 "API Keys"                  │
+echo  │  3. 点 "创建 API Key"                  │
+echo  │  4. 复制 key (sk-开头)                 │
+echo  │  5. 回到这里粘贴                       │
+echo  └─────────────────────────────────────────┘
+echo.
+
+:paste_key
+set /p DEEPSEEK_KEY="  请粘贴你的 DeepSeek API Key (sk-开头，回车跳过): "
 
 if "%DEEPSEEK_KEY%"=="" (
     echo.
