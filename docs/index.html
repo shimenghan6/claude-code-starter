@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Starter — 3分钟拥有 AI 编程助手</title>
+<meta name="description" content="一键安装 Claude Code + DeepSeek V4 + 微信远程操控。双击即用，全程自动化。开源免费，不会装远程代装 88 元。">
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --blue: #58a6ff;
+  --green: #3fb950;
+  --orange: #d29922;
+  --purple: #a371f7;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+/* ── Hero ── */
+.hero {
+  padding: 80px 0 60px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.hero .badge {
+  display: inline-block;
+  background: rgba(63,185,80,.15);
+  color: var(--green);
+  border: 1px solid rgba(63,185,80,.3);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 800;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.hero h1 span { color: var(--blue); }
+.hero .subtitle {
+  font-size: 20px;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.hero .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary { background: var(--green); color: #000; }
+.btn-primary:hover { background: #4cc964; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ── Stats ── */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat .num { font-size: 36px; font-weight: 800; color: var(--text); }
+.stat .label { font-size: 14px; color: var(--muted); }
+
+/* ── Sections ── */
+section { padding: 60px 0; }
+section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+}
+section .section-desc {
+  text-align: center;
+  color: var(--muted);
+  font-size: 18px;
+  margin-bottom: 40px;
+}
+
+/* ── Features ── */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  transition: border-color .2s;
+}
+.feature-card:hover { border-color: var(--blue); }
+.feature-card .icon { font-size: 28px; margin-bottom: 12px; }
+.feature-card h3 { font-size: 18px; margin-bottom: 8px; }
+.feature-card p { color: var(--muted); font-size: 15px; }
+
+/* ── Demo ── */
+.demo-video {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.demo-video video { max-width: 100%; border-radius: 8px; }
+.demo-video .placeholder {
+  background: #000;
+  border-radius: 8px;
+  padding: 80px 20px;
+  color: var(--muted);
+}
+
+/* ── Pricing ── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.pricing-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  position: relative;
+  transition: all .2s;
+}
+.pricing-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+.pricing-card.popular { border-color: var(--purple); }
+.pricing-card.popular::before {
+  content: "推荐";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--purple);
+  color: #fff;
+  padding: 2px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pricing-card h3 { font-size: 20px; margin-bottom: 8px; }
+.pricing-card .price {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 16px 0;
+}
+.pricing-card .price span { font-size: 18px; color: var(--muted); }
+.pricing-card ul {
+  list-style: none;
+  text-align: left;
+  margin: 20px 0 28px;
+}
+.pricing-card li {
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.pricing-card li::before { content: "✓ "; color: var(--green); font-weight: bold; }
+.pricing-card .btn { width: 100%; }
+
+/* ── Trust ── */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  text-align: center;
+}
+.trust-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.trust-item .num { font-size: 28px; font-weight: 800; color: var(--blue); margin-bottom: 4px; }
+.trust-item .label { font-size: 14px; color: var(--muted); }
+
+/* ── FAQ ── */
+.faq-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 18px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.faq-q:hover { background: rgba(88,166,255,.05); }
+.faq-q::after { content: "+"; font-size: 20px; color: var(--muted); }
+.faq-a {
+  padding: 0 24px 18px;
+  color: var(--muted);
+  font-size: 15px;
+  display: none;
+}
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-q::after { content: "−"; }
+
+/* ── CTA ── */
+.cta-bottom {
+  background: linear-gradient(135deg, rgba(88,166,255,.1), rgba(63,185,80,.1));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+}
+.cta-bottom h2 { margin-bottom: 12px; }
+.cta-bottom p { color: var(--muted); margin-bottom: 24px; font-size: 16px; }
+
+/* ── Footer ── */
+footer {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--blue); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding: 50px 0 40px; }
+  .hero h1 { font-size: 28px; }
+  .stats { gap: 30px; }
+  .stat .num { font-size: 28px; }
+  .pricing-card .price { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="container">
+<header class="hero">
+  <div class="badge">🎉 开源免费 · GitHub 可查源码</div>
+  <h1>3分钟拥有 <span>AI 编程助手</span></h1>
+  <p class="subtitle">双击一个 bat 文件，自动装好 Claude Code + DeepSeek V4 + 常用技能。<br>支持微信远程操控。不会装？远程代装 88 元全包。</p>
+  <div class="cta-group">
+    <a href="https://github.com/shimenghan6/claude-code-starter" class="btn btn-primary" target="_blank">📦 免费下载源码</a>
+    <a href="#pricing" class="btn btn-outline">💬 不想动手？代装 88 元</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="num">3 min</div><div class="label">安装耗时</div></div>
+    <div class="stat"><div class="num">100%</div><div class="label">开源</div></div>
+    <div class="stat"><div class="num">1M</div><div class="label">上下文长度</div></div>
+    <div class="stat"><div class="num">¥1.74</div><div class="label">/ 百万 token</div></div>
+  </div>
+</header>
+</div>
+
+<!-- ── Features ── -->
+<section class="container">
+  <h2>装上之后能干什么</h2>
+  <p class="section-desc">不是聊天机器人，是能操控你电脑的 AI 助手</p>
+  <div class="features">
+    <div class="feature-card">
+      <div class="icon">💻</div>
+      <h3>写代码</h3>
+      <p>"帮我写一个 Python 爬虫" — 自动生成代码，20行搞定。支持任何编程语言。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🌐</div>
+      <h3>搜网页</h3>
+      <p>"搜一下 React 19 新特性" — 自动打开浏览器搜索、阅读、总结返回。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📱</div>
+      <h3>微信遥控</h3>
+      <p>上班路上发微信，电脑自动干活。支持图片识别、语音转文字、视频分析。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔍</div>
+      <h3>GitHub 调研</h3>
+      <p>"有没有类似 Redis 的国产替代" — 自动搜索、对比 Stars、给选型建议。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📁</div>
+      <h3>文件操作</h3>
+      <p>"把这个 JSON 转成 TypeScript 类型" — 读写文件、重构代码、批量重命名。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔧</div>
+      <h3>执行命令</h3>
+      <p>"帮我跑一下测试，报错的挑出来" — 终端命令随便跑，结果自动分析。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Demo ── -->
+<section class="container">
+  <h2>安装有多简单</h2>
+  <p class="section-desc">双击 → 粘贴 DeepSeek Key → 完成。3 分钟，零出错。</p>
+  <div class="demo-video">
+    <div class="placeholder">📹 演示视频（上传中）<br><small>双击 install.bat → 自动安装 → 打开 VS Code 输入 claude → 开干</small></div>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section class="container" id="pricing">
+  <h2>远程代装服务</h2>
+  <p class="section-desc">自己装免费（源码全开源）。不想动手？我远程帮你装好。</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <h3>基础版</h3>
+      <div class="price"><span>¥</span>88</div>
+      <ul>
+        <li>Claude Code 安装配置</li>
+        <li>DeepSeek V4 模型接入</li>
+        <li>VS Code + 扩展</li>
+        <li>安装完成即结束</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline">选这个</a>
+    </div>
+
+    <div class="pricing-card popular">
+      <h3>进阶版</h3>
+      <div class="price"><span>¥</span>168</div>
+      <ul>
+        <li>基础版全部内容</li>
+        <li>浏览器操控 skill</li>
+        <li>GitHub 调研 skill</li>
+        <li>声音提示 skill</li>
+        <li>7 天使用咨询</li>
+      </ul>
+      <a href="#contact" class="btn btn-primary">最推荐</a>
+    </div>
+
+    <div class="pricing-card">
+      <h3>尊享版</h3>
+      <div class="price"><span>¥</span>298</div>
+      <ul>
+        <li>进阶版全部内容</li>
+        <li>微信远程接入</li>
+        <li>图片 / 语音 / 视频识别</li>
+        <li>开机自启 + 盒盖不休眠</li>
+        <li>30 天售后支持</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline">选这个</a>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);margin-top:16px;font-size:14px;">
+    装不上全额退款 · 远程安装约 5 分钟 · 你全程可以看到屏幕
+  </p>
+</section>
+
+<!-- ── Trust ── -->
+<section class="container">
+  <h2>为什么可以信任</h2>
+  <div class="trust-grid">
+    <div class="trust-item">
+      <div class="num">100%</div>
+      <div class="label">源码开源</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">GitHub 上每一行代码都能看到</p>
+    </div>
+    <div class="trust-item">
+      <div class="num">本地运行</div>
+      <div class="label">数据安全</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">API Key 只存你电脑，不上传</p>
+    </div>
+    <div class="trust-item">
+      <div class="num">全额退</div>
+      <div class="label">装不了退款</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">装不上不收一分钱</p>
+    </div>
+    <div class="trust-item">
+      <div class="num">全程可见</div>
+      <div class="label">远程装机</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">你旁观整个安装过程</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="container">
+  <h2>常见问题</h2>
+  <div class="faq-item">
+    <div class="faq-q">和 ChatGPT 有什么区别？</div>
+    <div class="faq-a">ChatGPT 是聊天网页。Claude Code 是能操控你电脑的 AI 助手——它能读写你的文件、执行命令、操控浏览器、甚至通过微信跟你对话。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">要花钱吗？模型贵不贵？</div>
+    <div class="faq-a">源码免费、安装免费。DeepSeek V4 按量计费，输入 1 元/百万字，输出 2 元/百万字。个人日常用一个月几块钱。新用户注册送额度。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">微信接入需要什么？</div>
+    <div class="faq-a">需要 iPhone + 微信最新版（ClawBot 插件）。Android 暂不支持腾讯官方 iLink 协议。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">安全吗？会不会偷我代码？</div>
+    <div class="faq-a">全部源码开源在 GitHub，每一行都能看到。API Key 只存在你本地 ~/.claude/settings.json，代码永远不上传任何第三方服务器。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">装完用不了怎么办？</div>
+    <div class="faq-a">远程安装时当场测试，确认能用才走。装不了全额退款。尊享版 30 天内任何问题免费重装。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">能用其他模型吗？不是 DeepSeek 可以吗？</div>
+    <div class="faq-a">可以。Claude Code 支持任何 Anthropic Messages API 兼容的端点。想用 OpenAI、Groq、Ollama 本地模型都行，改一下配置文件即可。</div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="container">
+  <div class="cta-bottom">
+    <h2>还在自己配环境？</h2>
+    <p>双击一下的事，何必花半小时看文档。</p>
+    <div class="cta-group">
+      <a href="https://github.com/shimenghan6/claude-code-starter" class="btn btn-primary" target="_blank">免费下载源码</a>
+      <a href="#contact" class="btn btn-outline">加微信代装 88 元</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ── -->
+<section class="container" id="contact">
+  <h2>联系我</h2>
+  <p class="section-desc">需要远程安装？扫码加微信，备注"Claude"。</p>
+  <div style="text-align:center;margin-bottom:40px;">
+    <img src="wechat-qr.png" alt="微信二维码" style="width:200px;border-radius:12px;border:1px solid var(--border);" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+    <p style="display:none;color:var(--muted);">微信：你的微信号（替换此图片）</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><a href="https://github.com/shimenghan6/claude-code-starter">GitHub</a> · <a href="https://github.com/shimenghan6/claude-code-wechat">微信桥接项目</a> · MIT License</p>
+  </div>
+</footer>
+
+<script>
+// FAQ toggle
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+});
+</script>
+</body>
+</html>
