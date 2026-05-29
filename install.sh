@@ -4,12 +4,34 @@ set -e
 echo ""
 echo " ╔══════════════════════════════════════════╗"
 echo " ║     Claude Code Starter                ║"
-echo " ║     Claude Code + DeepSeek + 技能包     ║"
+echo " ║   VS Code + Claude Code + DeepSeek      ║"
 echo " ╚══════════════════════════════════════════╝"
 echo ""
 
-# Step 0: Check prerequisites
-echo "[1/6] 检查环境..."
+# Step 0: VS Code
+echo "[0/7] VS Code..."
+if ! command -v code &>/dev/null; then
+    read -p "  VS Code not found. Install? (y/n, default y): " INSTALL_VSC
+    INSTALL_VSC=${INSTALL_VSC:-y}
+    if [ "$INSTALL_VSC" = "y" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            brew install --cask visual-studio-code
+        elif [[ "$OSTYPE" == "linux"* ]]; then
+            sudo snap install code --classic
+        fi
+        code --install-extension anthropic.claude-code 2>/dev/null
+        echo " [OK] VS Code installed"
+    fi
+else
+    echo " [OK] VS Code found"
+    code --list-extensions 2>/dev/null | grep -q "claude-code" || {
+        code --install-extension anthropic.claude-code 2>/dev/null
+        echo " [OK] Claude Code extension added"
+    }
+fi
+
+# Step 1: Check prerequisites
+echo "[1/7] 检查环境..."
 
 if ! command -v node &>/dev/null; then
     echo " [X] 未检测到 Node.js"

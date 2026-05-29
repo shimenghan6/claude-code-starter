@@ -5,12 +5,50 @@ title Claude Code Starter - 一键安装
 echo.
 echo  ╔══════════════════════════════════════════╗
 echo  ║     Claude Code Starter                ║
-echo  ║     Claude Code + DeepSeek + 技能包     ║
+echo  ║   VS Code + Claude Code + DeepSeek      ║
 echo  ╚══════════════════════════════════════════╝
 echo.
 
-:: ── Step 0: Check prerequisites ──
-echo [1/6] 检查环境...
+:: ── Step 0: VS Code ──
+echo [0/7] VS Code...
+where code >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo   未检测到 VS Code。
+    set /p INSTALL_VSC="  要安装 VS Code 吗？(y/n，默认 y): "
+    if /i "%INSTALL_VSC%"=="" set INSTALL_VSC=y
+    if /i "%INSTALL_VSC%"=="y" (
+        echo   正在安装 VS Code（约 100MB，需等待）...
+        winget install Microsoft.VisualStudioCode --accept-package-agreements --accept-source-agreements 2>nul
+        if %errorlevel% equ 0 (
+            echo   [√] VS Code 已安装
+            echo   正在安装 Claude Code 扩展...
+            code --install-extension anthropic.claude-code 2>nul
+            echo   [√] Claude Code 扩展已安装
+        ) else (
+            echo   [-] VS Code 安装失败，请手动下载: https://code.visualstudio.com
+        )
+    ) else (
+        echo   跳过 VS Code（之后可手动安装）
+    )
+) else (
+    echo  [√] VS Code 已安装
+    echo   检查 Claude Code 扩展...
+    code --list-extensions 2>nul | findstr "claude-code" >nul
+    if %errorlevel% neq 0 (
+        echo   正在安装 Claude Code 扩展...
+        code --install-extension anthropic.claude-code 2>nul
+        echo   [√] Claude Code 扩展已安装
+    ) else (
+        echo   [√] Claude Code 扩展已安装
+    )
+)
+echo.
+echo  安装完成后打开 VS Code，Ctrl+` 呼出终端，输入 claude 即可使用。
+echo.
+
+:: ── Step 1: Check prerequisites ──
+echo [1/7] 检查环境...
 
 where node >nul 2>&1
 if %errorlevel% neq 0 (
@@ -26,7 +64,7 @@ echo  [√] Node.js 已安装
 
 :: ── Step 1: Install Claude Code ──
 echo.
-echo [2/6] 安装 Claude Code...
+echo [2/7] 安装 Claude Code...
 call npm install -g @anthropic-ai/claude-code 2>nul
 if %errorlevel% neq 0 (
     echo  [X] Claude Code 安装失败，请检查网络后重试
@@ -37,7 +75,7 @@ echo  [√] Claude Code 已安装
 
 :: ── Step 2: Configure DeepSeek ──
 echo.
-echo [3/6] 配置 DeepSeek 模型...
+echo [3/7] 配置 DeepSeek 模型...
 echo.
 echo  需要 DeepSeek API Key（注册送额度，每次调用几分钱）。
 echo.
@@ -105,7 +143,7 @@ if "%DEEPSEEK_KEY%"=="" (
 
 :: ── Step 4: Install skills ──
 echo.
-echo [4/6] 安装技能包...
+echo [4/7] 安装技能包...
 echo.
 echo  可选技能:
 echo    1. 浏览器操控 - 说"搜一下xxx"自动操控浏览器
@@ -148,7 +186,7 @@ if not "%SKILL_CHOICE%"=="4" goto :step5
 
 :: ── Step 5: WeChat (optional) ──
 echo.
-echo [5/6] 微信接入...
+echo [5/7] 微信接入...
 echo.
 echo  想要在微信里远程操控 Claude Code 吗？
 echo  需要: iPhone + 微信最新版
@@ -192,7 +230,7 @@ if /i "%WECHAT%"=="y" (
 
 :: ── Step 6: Done ──
 echo.
-echo [6/6] 完成！
+echo [7/7] 完成！
 echo.
 echo  ╔══════════════════════════════════════════╗
 echo  ║         安装完成！                      ║
