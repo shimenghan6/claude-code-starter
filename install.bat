@@ -1,246 +1,322 @@
 @echo off
-chcp 65001 >nul
-title Claude Code Starter - 一键安装
+setlocal enabledelayedexpansion
+chcp 65001 >nul 2>&1
+title Claude Code 一键安装
 
 echo.
-echo  ╔══════════════════════════════════════════╗
-echo  ║     Claude Code Starter                ║
-echo  ║   VS Code + Claude Code + DeepSeek      ║
-echo  ╚══════════════════════════════════════════╝
+echo   ========================================
+echo       Claude Code 一键安装
+echo       VS Code + DeepSeek + 4 个 Skill
+echo   ========================================
+echo.
+echo   Skill 已打包在本地，无需 GitHub。
+echo   需要网络：下载 Claude Code 和 npm 依赖。
 echo.
 
-:: ── Step 0: VS Code ──
-echo [0/7] VS Code...
+:: 跟踪各组件安装状态
+set OK_VSCODE=0
+set OK_NODE=0
+set OK_CLAUDE=0
+set OK_DEEPSEEK=0
+set OK_SKILLS=0
+set OK_WECHAT=0
+set SKILL_COUNT=0
+
+:: ============================================================
+:: 步骤 0：VS Code
+:: ============================================================
+echo [0/6] 检测 VS Code...
 where code >nul 2>&1
-if %errorlevel% neq 0 (
-    echo.
-    echo   未检测到 VS Code。
-    set /p INSTALL_VSC="  要安装 VS Code 吗？(y/n，默认 y): "
-    if /i "%INSTALL_VSC%"=="" set INSTALL_VSC=y
-    if /i "%INSTALL_VSC%"=="y" (
-        echo   正在安装 VS Code（约 100MB，需等待）...
-        winget install Microsoft.VisualStudioCode --accept-package-agreements --accept-source-agreements 2>nul
-        if %errorlevel% equ 0 (
-            echo   [√] VS Code 已安装
-            echo   正在安装 Claude Code 扩展...
-            code --install-extension anthropic.claude-code 2>nul
-            echo   [√] Claude Code 扩展已安装
+if !errorlevel! neq 0 (
+    echo   正在用 winget 安装 VS Code...
+    call winget install Microsoft.VisualStudioCode --accept-package-agreements 2>nul
+    if !errorlevel! equ 0 (
+        echo   [完成] VS Code 已安装
+        set OK_VSCODE=1
+    ) else (
+        echo   [重试] winget 失败，尝试直接下载...
+        call powershell -Command "Invoke-WebRequest -Uri 'https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user' -OutFile '%TEMP%\VSCodeSetup.exe'" 2>nul
+        if exist "%TEMP%\VSCodeSetup.exe" (
+            start /wait "" "%TEMP%\VSCodeSetup.exe" /verysilent /norestart
+            del "%TEMP%\VSCodeSetup.exe" 2>nul
+            echo   [完成] VS Code 已安装
+            set OK_VSCODE=1
         ) else (
-            echo   [-] VS Code 安装失败，请手动下载: https://code.visualstudio.com
+            echo   [警告] 自动安装失败，请手动安装：https://code.visualstudio.com
         )
-    ) else (
-        echo   跳过 VS Code（之后可手动安装）
     )
 ) else (
-    echo  [√] VS Code 已安装
-    echo   检查 Claude Code 扩展...
-    code --list-extensions 2>nul | findstr "claude-code" >nul
-    if %errorlevel% neq 0 (
-        echo   正在安装 Claude Code 扩展...
-        code --install-extension anthropic.claude-code 2>nul
-        echo   [√] Claude Code 扩展已安装
-    ) else (
-        echo   [√] Claude Code 扩展已安装
-    )
+    echo   [完成] VS Code 已安装
+    set OK_VSCODE=1
 )
-echo.
-echo  安装完成后打开 VS Code，Ctrl+` 呼出终端，输入 claude 即可使用。
+
+:: VS Code 扩展
+where code >nul 2>&1
+if !errorlevel! equ 0 (
+    call code --install-extension anthropic.claude-code >nul 2>&1
+    echo   [完成] Claude Code 扩展
+)
+
 echo.
 
-:: ── Step 1: Check prerequisites ──
-echo [1/7] 检查环境...
-
+:: ============================================================
+:: 步骤 1：Node.js
+:: ============================================================
+echo [1/6] 检测 Node.js...
 where node >nul 2>&1
-if %errorlevel% neq 0 (
-    echo.
-    echo  [X] 未检测到 Node.js
-    echo  请先安装 Node.js: https://nodejs.org
-    echo  下载 LTS 版本，一路下一步即可。
-    echo  安装完成后重新运行本脚本。
-    pause
-    exit /b 1
+if !errorlevel! neq 0 (
+    echo   未找到 Node.js，正在用 winget 安装...
+    call winget install OpenJS.NodeJS.LTS --accept-package-agreements 2>nul
+    if !errorlevel! equ 0 (
+        echo   [完成] Node.js LTS 已安装
+        set "PATH=%PATH%;%ProgramFiles%\nodejs;%AppData%\npm"
+    ) else (
+        echo   [重试] winget 失败，尝试直接下载...
+        call powershell -Command "Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.14.0/node-v22.14.0-x64.msi' -OutFile '%TEMP%\nodejs.msi'" 2>nul
+        if exist "%TEMP%\nodejs.msi" (
+            start /wait msiexec /i "%TEMP%\nodejs.msi" /quiet /norestart
+            del "%TEMP%\nodejs.msi" 2>nul
+            set "PATH=%PATH%;%ProgramFiles%\nodejs;%AppData%\npm"
+            echo   [完成] Node.js 已安装
+        ) else (
+            echo   [警告] 无法自动安装 Node.js
+            echo   [警告] 请手动下载：https://nodejs.org
+            echo   [警告] Skill 会继续安装，但 Claude Code 需要 Node.js
+        )
+    )
 )
-echo  [√] Node.js 已安装
 
-:: ── Step 1: Install Claude Code ──
-echo.
-echo [2/7] 安装 Claude Code...
-call npm install -g @anthropic-ai/claude-code 2>nul
-if %errorlevel% neq 0 (
-    echo  [X] Claude Code 安装失败，请检查网络后重试
-    pause
-    exit /b 1
-)
-echo  [√] Claude Code 已安装
-
-:: ── Step 2: Configure DeepSeek ──
-echo.
-echo [3/7] 配置 DeepSeek 模型...
-echo.
-echo  需要 DeepSeek API Key（注册送额度，每次调用几分钱）。
-echo.
-set /p HAS_KEY="  已经有 API Key 了？(y/n，默认 n): "
-if /i "%HAS_KEY%"=="y" goto :paste_key
-
-:: 没有 Key → 自动打开注册页
-echo.
-echo  正在打开 DeepSeek 注册页面...
-echo  注册后在左侧 "API Keys" 创建 Key，复制粘贴回来。
-start "" "https://platform.deepseek.com"
-echo.
-echo  ┌─────────────────────────────────────────┐
-echo  │  注册步骤:                              │
-echo  │  1. 浏览器中注册/登录 DeepSeek         │
-echo  │  2. 点左侧 "API Keys"                  │
-echo  │  3. 点 "创建 API Key"                  │
-echo  │  4. 复制 key (sk-开头)                 │
-echo  │  5. 回到这里粘贴                       │
-echo  └─────────────────────────────────────────┘
-echo.
-
-:paste_key
-set /p DEEPSEEK_KEY="  请粘贴你的 DeepSeek API Key (sk-开头，回车跳过): "
-
-if "%DEEPSEEK_KEY%"=="" (
-    echo.
-    echo  [X] 未输入 Key，跳过模型配置。
-    echo  之后可以手动编辑 ~/.claude/settings.json 添加。
+:: 验证 node
+where node >nul 2>&1
+if !errorlevel! equ 0 (
+    for /f "tokens=*" %%i in ('node -v') do set NODE_VER=%%i
+    echo   [完成] Node.js !NODE_VER!
+    for /f "tokens=*" %%i in ('npm -v') do set NPM_VER=%%i
+    echo   [完成] npm v!NPM_VER!
+    set OK_NODE=1
 ) else (
-    echo.
-    echo  正在写入配置...
+    echo   [提示] Node.js 不可用，跳过 Claude Code 安装
+)
 
-    set SETTINGS_DIR=%USERPROFILE%\.claude
-    if not exist "%SETTINGS_DIR%" mkdir "%SETTINGS_DIR%"
+echo.
 
-    :: Generate settings.json with user's API key
+:: ============================================================
+:: 步骤 2：Claude Code（需要 Node.js）
+:: ============================================================
+echo [2/6] 安装 Claude Code...
+if !OK_NODE! equ 1 (
+    echo   正在用 npm 安装，需要联网，约 1-2 分钟...
+    call npm install -g @anthropic-ai/claude-code >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo   [重试] 首次失败，换 --force 重试...
+        call npm install -g @anthropic-ai/claude-code --force >nul 2>&1
+    )
+    where claude >nul 2>&1
+    if !errorlevel! equ 0 (
+        for /f "tokens=*" %%i in ('claude --version 2^>^&1') do set CLAUDE_VER=%%i
+        echo   [完成] Claude Code !CLAUDE_VER!
+        set OK_CLAUDE=1
+    ) else (
+        echo   [警告] claude 不在 PATH 中，请重启终端后重试
+        echo         npm 全局目录：
+        call npm root -g
+    )
+) else (
+    echo   [跳过] Node.js 未安装，请先装 Node.js 再重试
+)
+
+echo.
+
+:: ============================================================
+:: 步骤 3：DeepSeek API Key
+:: ============================================================
+echo [3/6] 配置 DeepSeek API Key...
+echo.
+
+if exist "%USERPROFILE%\.claude\settings.json" (
+    echo   已有 settings.json，保留不动
+    set OK_DEEPSEEK=1
+    goto :skip_deepseek
+)
+
+echo   DeepSeek 新用户有免费额度。
+echo   注册地址：https://platform.deepseek.com
+echo   注册后进入 API Keys 页面，创建 Key，复制 sk- 开头的密钥
+echo.
+
+set DEEPSEEK_KEY=
+set /p DEEPSEEK_KEY="   在此粘贴 API Key（sk-xxx，回车跳过）："
+if "!DEEPSEEK_KEY!"=="" (
+    echo   [跳过] 之后可手动创建 %%USERPROFILE%%\.claude\settings.json
+) else (
+    if not exist "%USERPROFILE%\.claude" mkdir "%USERPROFILE%\.claude"
     (
     echo {
     echo   "env": {
     echo     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    echo     "ANTHROPIC_AUTH_TOKEN": "%DEEPSEEK_KEY%",
+    echo     "ANTHROPIC_AUTH_TOKEN": "!DEEPSEEK_KEY!",
     echo     "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]",
     echo     "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
     echo     "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
     echo     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash[1m]",
     echo     "CLAUDE_CODE_EFFORT_LEVEL": "max"
-    echo   },
-    echo   "permissions": {
-    echo     "allow": [
-    echo       "Bash(npm *)",
-    echo       "Bash(pip *)",
-    echo       "Bash(curl *)",
-    echo       "Bash(node *)",
-    echo       "WebSearch",
-    echo       "WebFetch(*)",
-    echo       "Skill(*)"
-    echo     ]
     echo   }
     echo }
-    ) > "%SETTINGS_DIR%\settings.json"
-
-    echo  [√] DeepSeek 配置完成
+    ) > "%USERPROFILE%\.claude\settings.json"
+    echo   [完成] 配置已写入
+    set OK_DEEPSEEK=1
 )
 
-:: ── Step 4: Install skills ──
+:skip_deepseek
 echo.
-echo [4/7] 安装技能包...
+
+:: ============================================================
+:: 步骤 4：Skill（本地复制，无需联网）
+:: ============================================================
+echo [4/6] 安装 Skill（本地文件，秒装）...
+set "SKILLS_DIR=%USERPROFILE%\.claude\skills"
+
+if exist "%~dp0skills\browser-control\SKILL.md" (
+    mkdir "!SKILLS_DIR!\browser-control" 2>nul
+    copy /y "%~dp0skills\browser-control\SKILL.md" "!SKILLS_DIR!\browser-control\SKILL.md" >nul
+    echo   [完成] browser-control — 浏览器操控
+    set /a SKILL_COUNT+=1
+) else (echo   [-]  browser-control 不在此套餐中)
+
+if exist "%~dp0skills\github-research\SKILL.md" (
+    mkdir "!SKILLS_DIR!\github-research" 2>nul
+    copy /y "%~dp0skills\github-research\SKILL.md" "!SKILLS_DIR!\github-research\SKILL.md" >nul
+    echo   [完成] github-research — GitHub 项目调研
+    set /a SKILL_COUNT+=1
+) else (echo   [-]  github-research 不在此套餐中)
+
+if exist "%~dp0skills\sound-notifier\SKILL.md" (
+    mkdir "!SKILLS_DIR!\claude-code-sound-notifier" 2>nul
+    copy /y "%~dp0skills\sound-notifier\SKILL.md" "!SKILLS_DIR!\claude-code-sound-notifier\SKILL.md" >nul
+    echo   [完成] sound-notifier — 任务完成提示音
+    set /a SKILL_COUNT+=1
+) else (echo   [-]  sound-notifier 不在此套餐中)
+
+if exist "%~dp0skills\github-publisher\SKILL.md" (
+    mkdir "!SKILLS_DIR!\github-publisher" 2>nul
+    copy /y "%~dp0skills\github-publisher\SKILL.md" "!SKILLS_DIR!\github-publisher\SKILL.md" >nul
+    echo   [完成] github-publisher — GitHub 发布管理
+    set /a SKILL_COUNT+=1
+) else (echo   [-]  github-publisher 不在此套餐中)
+
+if !SKILL_COUNT! gtr 0 set OK_SKILLS=1
+
 echo.
-echo  可选技能:
-echo    1. 浏览器操控 - 说"搜一下xxx"自动操控浏览器
-echo    2. GitHub 调研 - 说"查一下xxx项目"自动对比分析
-echo    3. 声音提示   - 任务完成叮咚提醒
-echo    4. 全部安装
-echo    回车跳过
-echo.
-set /p SKILL_CHOICE="  请选择 (1/2/3/4，回车跳过): "
 
-set SKILLS_DIR=%USERPROFILE%\.claude\skills
-
-if "%SKILL_CHOICE%"=="1" goto :install_browser
-if "%SKILL_CHOICE%"=="2" goto :install_research
-if "%SKILL_CHOICE%"=="3" goto :install_sound
-if "%SKILL_CHOICE%"=="4" goto :install_browser
-
-echo  跳过技能安装（之后可随时安装: https://github.com/shimenghan6）
-goto :step5
-
-:install_browser
-if not exist "%SKILLS_DIR%\browser-control" mkdir "%SKILLS_DIR%\browser-control"
-curl -fsSL "https://raw.githubusercontent.com/shimenghan6/browser-control/master/SKILL.md" -o "%SKILLS_DIR%\browser-control\SKILL.md" 2>nul
-if %errorlevel% equ 0 (echo  [√] browser-control - 浏览器操控) else (echo  [-] browser-control 下载失败)
-if not "%SKILL_CHOICE%"=="4" goto :step5
-
-:install_research
-if not exist "%SKILLS_DIR%\github-research" mkdir "%SKILLS_DIR%\github-research"
-curl -fsSL "https://raw.githubusercontent.com/shimenghan6/github-research/master/SKILL.md" -o "%SKILLS_DIR%\github-research\SKILL.md" 2>nul
-if %errorlevel% equ 0 (echo  [√] github-research - GitHub调研) else (echo  [-] github-research 下载失败)
-if not "%SKILL_CHOICE%"=="4" goto :step5
-
-:install_sound
-if not exist "%SKILLS_DIR%\claude-code-sound-notifier" mkdir "%SKILLS_DIR%\claude-code-sound-notifier"
-curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-sound-notifier/master/install.ps1" -o "%SKILLS_DIR%\claude-code-sound-notifier\install.ps1" 2>nul
-if %errorlevel% equ 0 (echo  [√] claude-code-sound-notifier - 声音提示) else (echo  [-] 声音提示 下载失败)
-if not "%SKILL_CHOICE%"=="4" goto :step5
-
-:step5
-
-:: ── Step 5: WeChat (optional) ──
-echo.
-echo [5/7] 微信接入...
-echo.
-echo  想要在微信里远程操控 Claude Code 吗？
-echo  需要: iPhone + 微信最新版
-echo.
-set /p WECHAT="  接入微信? (y/n，默认 n): "
-if /i "%WECHAT%"=="y" (
-    echo.
-    echo  正在安装微信接入组件...
-
-    :: Install wechat deps
-    call npm install -g claude-code-wechat-channel @weixin-claw/core 2>nul
-
-    :: Download bridge + processor
-    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-wechat/master/wechat-bridge.mjs" -o "%USERPROFILE%\.claude\wechat-bridge.mjs" 2>nul
-    curl -fsSL "https://raw.githubusercontent.com/shimenghan6/claude-code-wechat/master/media-processor.py" -o "%USERPROFILE%\.claude\media-processor.py" 2>nul
-
-    :: Create MCP config
-    (
-    echo {
-    echo   "mcpServers": {
-    echo     "wechat": {
-    echo       "command": "npx",
-    echo       "args": ["-y", "claude-code-wechat-channel", "start"]
-    echo     }
-    echo   }
-    echo }
-    ) > "%USERPROFILE%\.mcp.json"
-
-    echo.
-    echo  [√] 微信组件安装完成
-    echo.
-    echo  下一步：扫码连接微信
-    echo    curl -s https://ilinkai.weixin.qq.com/ilink/bot/get_bot_qrcode?bot_type=3
-    echo   手机打开链接授权 → 保存凭证到 ~/.claude/channels/wechat/account.json
-    echo   启动桥接: node ~/.claude/wechat-bridge.mjs
-    echo.
-    echo  详细教程: https://github.com/shimenghan6/claude-code-wechat
+:: ============================================================
+:: 步骤 5：微信桥接（可选）
+:: ============================================================
+echo [5/6] 微信远程控制（可选）...
+if exist "%~dp0wechat\wechat-bridge.mjs" (
+    set WECHAT=n
+    set /p WECHAT="   是否安装微信桥接？(y/n，默认 n)："
+    if /i "!WECHAT!"=="y" (
+        copy /y "%~dp0wechat\wechat-bridge.mjs" "%USERPROFILE%\.claude\wechat-bridge.mjs" >nul
+        if exist "%~dp0wechat\media-processor.py" copy /y "%~dp0wechat\media-processor.py" "%USERPROFILE%\.claude\media-processor.py" >nul 2>nul
+        if exist "%~dp0wechat\cloud_vision.py" copy /y "%~dp0wechat\cloud_vision.py" "%USERPROFILE%\.claude\cloud_vision.py" >nul 2>nul
+        echo   [完成] 微信文件已安装
+        if !OK_NODE! equ 1 (
+            echo   正在安装微信 npm 依赖...
+            call npm install -g claude-code-wechat-channel @weixin-claw/core >nul 2>&1
+        )
+        set OK_WECHAT=1
+    ) else (
+        echo   [跳过]
+    )
 ) else (
-    echo  跳过微信接入（之后可以随时安装: https://github.com/shimenghan6/claude-code-wechat）
+    echo   [-]  微信模块不在此套餐中
+    echo        需要尊享版（298元）
 )
 
-:: ── Step 6: Done ──
 echo.
-echo [7/7] 完成！
+
+:: ============================================================
+:: 步骤 6：完成 + Skill 使用指南
+:: ============================================================
+echo [6/6] 安装完成！
 echo.
-echo  ╔══════════════════════════════════════════╗
-echo  ║         安装完成！                      ║
-echo  ║                                        ║
-echo  ║  打开新终端，输入: claude               ║
-echo  ║                                        ║
-echo  ║  可以跟 Claude 说:                      ║
-echo  ║    "帮我写一个 xxx"                     ║
-echo  ║    "搜一下 xxx"                         ║
-echo  ║    "查一下 GitHub 上的 xxx 项目"        ║
-echo  ╚══════════════════════════════════════════╝
+echo   ========================================
+echo     安装总结
+echo   ========================================
+echo     VS Code：     !OK_VSCODE! （1=已装 0=未装）
+echo     Node.js：     !OK_NODE! （1=已装 0=未装）
+echo     Claude Code： !OK_CLAUDE! （1=已装 0=未装）
+echo     DeepSeek：    !OK_DEEPSEEK! （1=已配 0=跳过）
+echo     Skill：       !SKILL_COUNT! 个已安装
+echo     WeChat：      !OK_WECHAT! （1=已装 0=跳过）
+echo   ========================================
 echo.
+
+:: ---- Skill 使用指南 ----
+echo   ========================================
+echo     Skill 使用方法
+echo   ========================================
+echo.
+echo   启动 Claude Code 后（终端输入 claude），试说：
+echo.
+
+if exist "!SKILLS_DIR!\browser-control\SKILL.md" (
+    echo   [browser-control] 浏览器操控
+    echo     说："打开浏览器搜索 xxx"
+    echo     说："打开百度搜龙珠"
+    echo     说："给这个页面截个图"
+    echo.
+)
+if exist "!SKILLS_DIR!\github-research\SKILL.md" (
+    echo   [github-research] GitHub 项目调研
+    echo     说："搜一下 GitHub 上的 xxx 工具"
+    echo     说："对比一下 xxx 和 yyy"
+    echo     说："帮我找最好的 Python OCR 库"
+    echo.
+)
+if exist "!SKILLS_DIR!\claude-code-sound-notifier\SKILL.md" (
+    echo   [sound-notifier] 任务完成提示音
+    echo     Claude 干完活自动叮咚一声
+    echo     说："打开声音提醒"
+    echo.
+)
+if exist "!SKILLS_DIR!\github-publisher\SKILL.md" (
+    echo   [github-publisher] GitHub 发布管理
+    echo     说："把这个项目发布到 GitHub"
+    echo     说："把我的 skill 推送到 GitHub"
+    echo     自动创建仓库、README、一键安装脚本
+    echo.
+)
+if "!OK_WECHAT!"=="1" (
+    echo   [微信桥接] 微信远程控制 Claude Code
+    echo     扫码绑定后，发微信消息就能遥控电脑
+    echo     详见：https://github.com/shimenghan6/claude-code-wechat
+    echo.
+)
+
+echo   ========================================
+echo.
+if !OK_NODE! equ 0 (
+    echo   *** 重要：需要安装 Node.js！***
+    echo   下载地址：https://nodejs.org （选 LTS 版本）
+    echo   安装 Node.js 后，重新运行此脚本即可
+    echo.
+)
+if !OK_CLAUDE! equ 0 (
+    echo   *** Claude Code 尚未安装 ***
+    echo   Node.js 就绪后重新运行此脚本
+    echo   或手动执行：npm install -g @anthropic-ai/claude-code
+    echo.
+)
+if !OK_DEEPSEEK! equ 0 (
+    echo   *** DeepSeek API Key 未配置 ***
+    echo   手动创建文件：%%USERPROFILE%%\.claude\settings.json
+    echo   模板见同目录下的 settings.template.json
+    echo.
+)
+
+echo   所有文件已安装到：%%USERPROFILE%%\.claude\
+echo.
+
+endlocal
 pause
