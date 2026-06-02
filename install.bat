@@ -105,11 +105,11 @@ echo.
 :: ============================================================
 echo [2/6] 安装 Claude Code...
 if !OK_NODE! equ 1 (
-    echo   正在用 npm 安装，需要联网，约 1-2 分钟...
-    call npm install -g @anthropic-ai/claude-code >nul 2>&1
+    echo   正在用 npm 安装 v2.1.160（锁定版本，兼容 DeepSeek），需要联网，约 1-2 分钟...
+    call npm install -g @anthropic-ai/claude-code@2.1.160 >nul 2>&1
     if !errorlevel! neq 0 (
         echo   [重试] 首次失败，换 --force 重试...
-        call npm install -g @anthropic-ai/claude-code --force >nul 2>&1
+        call npm install -g @anthropic-ai/claude-code@2.1.160 --force >nul 2>&1
     )
     where claude >nul 2>&1
     if !errorlevel! equ 0 (
@@ -159,7 +159,9 @@ if "!DEEPSEEK_KEY!"=="" (
     echo     "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
     echo     "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
     echo     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash[1m]",
-    echo     "CLAUDE_CODE_EFFORT_LEVEL": "max"
+    echo     "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    echo     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    echo     "API_TIMEOUT_MS": "600000"
     echo   }
     echo }
     ) > "%USERPROFILE%\.claude\settings.json"
@@ -305,7 +307,7 @@ if !OK_NODE! equ 0 (
 if !OK_CLAUDE! equ 0 (
     echo   *** Claude Code 尚未安装 ***
     echo   Node.js 就绪后重新运行此脚本
-    echo   或手动执行：npm install -g @anthropic-ai/claude-code
+    echo   或手动执行：npm install -g @anthropic-ai/claude-code@2.1.160
     echo.
 )
 if !OK_DEEPSEEK! equ 0 (
