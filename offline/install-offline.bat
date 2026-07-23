@@ -86,7 +86,7 @@ if !errorlevel! neq 0 (
     )
 )
 
-:: 验证 node（含新装后 PATH 未刷新的兜底）
+:: 验证 node（新装后PATH未刷新自动搜索常见路径）
 set NODE_FOUND=0
 where node >nul 2>&1 && set NODE_FOUND=1
 if !NODE_FOUND!==0 (
@@ -105,7 +105,7 @@ if !NODE_FOUND! equ 1 (
     set OK_NODE=1
 ) else (
     echo   [提示] Node.js 不可用，请重启终端后重试
-    echo         常见安装路径：%ProgramFiles%\nodejs
+    echo         常见路径：%ProgramFiles%\nodejs
 )
 
 echo.
@@ -151,7 +151,7 @@ if exist "%USERPROFILE%\.claude\settings.json" (
 
 echo   DeepSeek 新用户有免费额度。
 echo   注册地址: platform.deepseek.com
-echo   注册后进入 API Keys 页面创建 Key，复制 sk- 开头的密钥
+echo   注册后进入 API Keys 页面，创建 Key，复制 sk- 开头的密钥
 echo.
 
 set DEEPSEEK_KEY=
@@ -255,17 +255,12 @@ echo.
 echo   ========================================
 echo     安装总结
 echo   ========================================
-	set VSCODE_TXT=未装 && if !OK_VSCODE! equ 1 set VSCODE_TXT=已装
-	set NODE_TXT=未装 && if !OK_NODE! equ 1 set NODE_TXT=已装
-	set CLAUDE_TXT=未装 && if !OK_CLAUDE! equ 1 set CLAUDE_TXT=已装
-	set DEEPSEEK_TXT=跳过 && if !OK_DEEPSEEK! equ 1 set DEEPSEEK_TXT=已配
-	set WECHAT_TXT=跳过 && if !OK_WECHAT! equ 1 set WECHAT_TXT=已装
-	echo     VS Code：     !VSCODE_TXT!
-	echo     Node.js：     !NODE_TXT!
-	echo     Claude Code： !CLAUDE_TXT!
-	echo     DeepSeek：    !DEEPSEEK_TXT!
-	echo     Skill：       !SKILL_COUNT! 个已安装
-	echo     WeChat：      !WECHAT_TXT!
+echo     VS Code：     !OK_VSCODE! （1=已装 0=未装）
+echo     Node.js：     !OK_NODE! （1=已装 0=未装）
+echo     Claude Code： !OK_CLAUDE! （1=已装 0=未装）
+echo     DeepSeek：    !OK_DEEPSEEK! （1=已配 0=跳过）
+echo     Skill：       !SKILL_COUNT! 个已安装
+echo     WeChat：      !OK_WECHAT! （1=已装 0=跳过）
 echo   ========================================
 echo.
 

@@ -86,26 +86,16 @@ if !errorlevel! neq 0 (
     )
 )
 
-:: 验证 node（新装后PATH未刷新自动搜索常见路径）
-set NODE_FOUND=0
-where node >nul 2>&1 && set NODE_FOUND=1
-if !NODE_FOUND!==0 (
-    for %%d in ("%ProgramFiles%\nodejs" "%LOCALAPPDATA%\Programs\nodejs" "%SystemDrive%\Program Files\nodejs") do (
-        if exist "%%~d\node.exe" (
-            set "PATH=!PATH!;%%~d"
-            set NODE_FOUND=1
-        )
-    )
-)
-if !NODE_FOUND! equ 1 (
+:: 验证 node
+where node >nul 2>&1
+if !errorlevel! equ 0 (
     for /f "tokens=*" %%i in ('node -v') do set NODE_VER=%%i
     echo   [完成] Node.js !NODE_VER!
     for /f "tokens=*" %%i in ('npm -v') do set NPM_VER=%%i
     echo   [完成] npm v!NPM_VER!
     set OK_NODE=1
 ) else (
-    echo   [提示] Node.js 不可用，请重启终端后重试
-    echo         常见路径：%ProgramFiles%\nodejs
+    echo   [提示] Node.js 不可用，跳过 Claude Code 安装
 )
 
 echo.
@@ -150,7 +140,7 @@ if exist "%USERPROFILE%\.claude\settings.json" (
 )
 
 echo   DeepSeek 新用户有免费额度。
-echo   注册地址: platform.deepseek.com
+echo   注册地址：https://platform.deepseek.com
 echo   注册后进入 API Keys 页面，创建 Key，复制 sk- 开头的密钥
 echo.
 
