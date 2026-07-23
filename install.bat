@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal enabledelayedexpansion
 chcp 65001 >nul 2>&1
 title Claude Code 一键安装
@@ -53,6 +53,7 @@ if !errorlevel! neq 0 (
 :: VS Code 扩展
 where code >nul 2>&1
 if !errorlevel! equ 0 (
+    echo   正在安装 Claude Code 扩展（约30秒，请稍候）...
     call code --install-extension anthropic.claude-code >nul 2>&1
     echo   [完成] Claude Code 扩展
 )
