@@ -35,7 +35,7 @@ if !errorlevel! neq 0 (
         set OK_VSCODE=1
     ) else (
         echo   [重试] winget 失败，尝试直接下载...
-        powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user' -OutFile '%TEMP%\VSCodeSetup.exe'"
+        curl.exe -L -o "%TEMP%\VSCodeSetup.exe" "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user"
         if exist "%TEMP%\VSCodeSetup.exe" (
             start /wait "" "%TEMP%\VSCodeSetup.exe" /norestart
             del "%TEMP%\VSCodeSetup.exe" 2>nul
@@ -72,7 +72,7 @@ if !errorlevel! neq 0 (
         set "PATH=%PATH%;%ProgramFiles%\nodejs;%AppData%\npm"
     ) else (
         echo   [重试] winget 失败，尝试直接下载...
-        powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.14.0/node-v22.14.0-x64.msi' -OutFile '%TEMP%\nodejs.msi'"
+        curl.exe -L -o "%TEMP%\nodejs.msi" "https://nodejs.org/dist/v22.14.0/node-v22.14.0-x64.msi"
         if exist "%TEMP%\nodejs.msi" (
             start /wait msiexec /i "%TEMP%\nodejs.msi" /norestart
             del "%TEMP%\nodejs.msi" 2>nul
