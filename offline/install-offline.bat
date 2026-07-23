@@ -160,9 +160,16 @@ echo   注册地址: platform.deepseek.com
 echo   注册后进入 API Keys 页面，创建 Key，复制 sk- 开头的密钥
 echo.
 
+:input_key
+
 set DEEPSEEK_KEY=
-set /p DEEPSEEK_KEY="   在此粘贴 API Key（sk-xxx，回车跳过）："
+set /p DEEPSEEK_KEY="   在此粘贴 API Key（sk-xxx，直接回车跳过）："
 if "!DEEPSEEK_KEY!"=="" (
+    set /p CONFIRM="   Key为空，确认跳过配置？(Y/N): "
+    if /i not "!CONFIRM!"=="Y" (
+        echo   重新输入：
+        goto :input_key
+    )
     echo   [跳过] 之后可手动创建 %%USERPROFILE%%\.claude\settings.json
 ) else (
     if not exist "%USERPROFILE%\.claude" mkdir "%USERPROFILE%\.claude"
