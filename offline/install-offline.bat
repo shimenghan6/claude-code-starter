@@ -53,9 +53,14 @@ if !errorlevel! neq 0 (
 :: VS Code 扩展
 where code >nul 2>&1
 if !errorlevel! equ 0 (
-    echo   正在安装 Claude Code 扩展（约30秒，请稍候）...
-    call code --install-extension anthropic.claude-code >nul 2>&1
-    echo   [完成] Claude Code 扩展
+    code --list-extensions 2>nul | findstr "claude-code" >nul 2>&1
+    if !errorlevel! equ 0 (
+        echo   [完成] Claude Code 扩展（已安装）
+    ) else (
+        echo   正在安装 Claude Code 扩展（约30秒，请稍候）...
+        call code --install-extension anthropic.claude-code >nul 2>&1
+        echo   [完成] Claude Code 扩展
+    )
 )
 
 echo.
