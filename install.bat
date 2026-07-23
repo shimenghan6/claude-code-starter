@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 setlocal enabledelayedexpansion
 chcp 65001 >nul 2>&1
 title Claude Code 一键安装
@@ -35,9 +35,9 @@ if !errorlevel! neq 0 (
         set OK_VSCODE=1
     ) else (
         echo   [重试] winget 失败，尝试直接下载...
-        curl.exe -L -o "%TEMP%\VSCodeSetup.exe" "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user"
+        call powershell -Command "Invoke-WebRequest -Uri 'https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user' -OutFile '%TEMP%\VSCodeSetup.exe'" 2>nul
         if exist "%TEMP%\VSCodeSetup.exe" (
-            start /wait "" "%TEMP%\VSCodeSetup.exe" /norestart
+            start /wait "" "%TEMP%\VSCodeSetup.exe" /verysilent /norestart
             del "%TEMP%\VSCodeSetup.exe" 2>nul
             echo   [完成] VS Code 已安装
             set OK_VSCODE=1
@@ -53,14 +53,8 @@ if !errorlevel! neq 0 (
 :: VS Code 扩展
 where code >nul 2>&1
 if !errorlevel! equ 0 (
-    code --list-extensions 2>nul | findstr "claude-code" >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo   [完成] Claude Code 扩展（已安装）
-    ) else (
-        echo   正在安装 Claude Code 扩展（约30秒，请稍候）...
-        call code --install-extension anthropic.claude-code >nul 2>&1
-        echo   [完成] Claude Code 扩展
-    )
+    call code --install-extension anthropic.claude-code >nul 2>&1
+    echo   [完成] Claude Code 扩展
 )
 
 echo.
@@ -78,9 +72,9 @@ if !errorlevel! neq 0 (
         set "PATH=%PATH%;%ProgramFiles%\nodejs;%AppData%\npm"
     ) else (
         echo   [重试] winget 失败，尝试直接下载...
-        curl.exe -L -o "%TEMP%\nodejs.msi" "https://nodejs.org/dist/v22.14.0/node-v22.14.0-x64.msi"
+        call powershell -Command "Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.14.0/node-v22.14.0-x64.msi' -OutFile '%TEMP%\nodejs.msi'" 2>nul
         if exist "%TEMP%\nodejs.msi" (
-            start /wait msiexec /i "%TEMP%\nodejs.msi" /norestart
+            start /wait msiexec /i "%TEMP%\nodejs.msi" /quiet /norestart
             del "%TEMP%\nodejs.msi" 2>nul
             set "PATH=%PATH%;%ProgramFiles%\nodejs;%AppData%\npm"
             echo   [完成] Node.js 已安装
@@ -92,26 +86,16 @@ if !errorlevel! neq 0 (
     )
 )
 
-:: 验证 node（新装后PATH未刷新自动搜索常见路径）
-set NODE_FOUND=0
-where node >nul 2>&1 && set NODE_FOUND=1
-if !NODE_FOUND!==0 (
-    for %%d in ("%ProgramFiles%\nodejs" "%LOCALAPPDATA%\Programs\nodejs" "%SystemDrive%\Program Files\nodejs") do (
-        if exist "%%~d\node.exe" (
-            set "PATH=!PATH!;%%~d"
-            set NODE_FOUND=1
-        )
-    )
-)
-if !NODE_FOUND! equ 1 (
+:: 验证 node
+where node >nul 2>&1
+if !errorlevel! equ 0 (
     for /f "tokens=*" %%i in ('node -v') do set NODE_VER=%%i
     echo   [完成] Node.js !NODE_VER!
     for /f "tokens=*" %%i in ('npm -v') do set NPM_VER=%%i
     echo   [完成] npm v!NPM_VER!
     set OK_NODE=1
 ) else (
-    echo   [提示] Node.js 不可用，请重启终端后重试
-    echo         常见路径：%ProgramFiles%\nodejs
+    echo   [提示] Node.js 不可用，跳过 Claude Code 安装
 )
 
 echo.
@@ -160,16 +144,9 @@ echo   注册地址: platform.deepseek.com
 echo   注册后进入 API Keys 页面，创建 Key，复制 sk- 开头的密钥
 echo.
 
-:input_key
-
 set DEEPSEEK_KEY=
-set /p DEEPSEEK_KEY="   在此粘贴 API Key（sk-xxx，直接回车跳过）："
+set /p DEEPSEEK_KEY="   在此粘贴 API Key（sk-xxx，回车跳过）："
 if "!DEEPSEEK_KEY!"=="" (
-    set /p CONFIRM="   Key为空，确认跳过配置？(Y/N): "
-    if /i not "!CONFIRM!"=="Y" (
-        echo   重新输入：
-        goto :input_key
-    )
     echo   [跳过] 之后可手动创建 %%USERPROFILE%%\.claude\settings.json
 ) else (
     if not exist "%USERPROFILE%\.claude" mkdir "%USERPROFILE%\.claude"
